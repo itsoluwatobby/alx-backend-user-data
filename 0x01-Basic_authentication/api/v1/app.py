@@ -6,19 +6,18 @@ from os import getenv
 from api.v1.views import app_views
 from flask import Flask, jsonify, abort, request
 from flask_cors import (CORS, cross_origin)
-import os
 
 
 app = Flask(__name__)
 app.register_blueprint(app_views)
 CORS(app, resources={r"/api/v1/*": {"origins": "*"}})
 auth = None
-if os.getenv('AUTH_TYPE') == 'auth':
+if getenv('AUTH_TYPE') == 'auth':
     from api.v1.auth.auth import Auth
     auth = Auth()
-#elif os.getenv('AUTH_TYPE') == 'basic_auth':
-#    from api.v1.auth.basic_auth import BasicAuth
-#    auth = BasicAuth()
+elif getenv('AUTH_TYPE') == 'basic_auth':
+    from api.v1.auth.basic_auth import BasicAuth
+    auth = BasicAuth()
 
 
 @app.errorhandler(404)
@@ -45,16 +44,15 @@ def forbidden(error) -> str:
 @app.before_request
 def before_request() -> None:
     """Before request handler"""
-    path = ['/api/v1/status/', '/api/v1/unauthorized/', '/api/v1/forbidden/']
+    paths = ['/api/v1/status/', '/api/v1/unauthorized/', '/api/v1/forbidden/']
     if not auth:
         return None
-    if not auth.require_auth(request.path, path):
+    if not auth.require_auth(request.path, paths):
         return None
     if not auth.authorization_header(request):
         abort(401)
     if not auth.current_user(request):
         abort(403)
-
 
 
 if __name__ == "__main__":
