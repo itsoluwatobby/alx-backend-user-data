@@ -11,10 +11,6 @@ from datetime import datetime, timedelta
 class SessionDBAuth(SessionExpAuth):
     """An session db class"""
 
-    def __init__(self):
-        """Initializes an instance of the Session db class"""
-        super().__init__()
-
     def create_session(self, user_id=None) -> str:
         """Creates a Session ID for a user_id"""
         session_id = super().create_session(user_id)
