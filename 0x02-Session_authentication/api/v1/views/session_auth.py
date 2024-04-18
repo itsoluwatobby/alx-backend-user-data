@@ -2,14 +2,14 @@
 """
 session_auth view
 """
-from flask import abort, jsonify, request, make_response
+from flask import abort, jsonify, request
 from api.v1.views import app_views
 from models.user import User
 from os import getenv
 
 
 @app_views.route('/auth_session/login', methods=['POST'], strict_slashes=False)
-def login() -> str:
+def login():
     """Session login authentication"""
     email = request.form.get('email')
     password = request.form.get('password')
@@ -30,8 +30,20 @@ def login() -> str:
             if user.is_valid_password(password):
                 from api.v1.app import auth
                 session_id = auth.create_session(user.id)
-                res = make_response(user.to_json())
-                res.set_cookie(getenv('SESSION_NAME', session_id))
+                res = jsonify(user.to_json())
+                res.set_cookie(getenv('SESSION_NAME'), session_id)
                 return res
             return jsonify({"error": "wrong password"}), 401
     return jsonify({"error": "no user found for this email"}), 404
+
+
+@app_views.route('/auth_session/logout', methods=['DELETE'],
+                 strict_slashes=False)
+def logout():
+    """Session logout authentication"""
+    from api.v1.app import auth
+    session_ended = auth.destroy_session(request)
+    if session_ended is False:
+        abort(404)
+        return False
+    return jsonify({}), 200
