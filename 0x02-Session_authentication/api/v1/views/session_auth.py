@@ -42,8 +42,6 @@ def login():
 def logout():
     """Session logout authentication"""
     from api.v1.app import auth
-    session_ended = auth.destroy_session(request)
-    if session_ended is False:
+    if not auth.destroy_session(request):
         abort(404)
-        return False
     return jsonify({}), 200
