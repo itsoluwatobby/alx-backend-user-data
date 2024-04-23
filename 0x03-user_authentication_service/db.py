@@ -10,6 +10,9 @@ from sqlalchemy.exc import InvalidRequestError
 from user import Base, User
 
 
+DATA = ['id', 'email', 'hashed_password', 'session_id', 'reset_token']
+
+
 class DB:
     """DB class
     """
@@ -41,6 +44,8 @@ class DB:
 
         Returns the user object
         """
+        if not email or not hashed_password:
+            return
         new_user = User(email=email, hashed_password=hashed_password)
         session = self._session
         session.add(new_user)
@@ -57,3 +62,18 @@ class DB:
         if not user:
             raise NoResultFound
         return user
+
+    def update_user(self, user_id: int, **kwargs) -> None:
+        """
+        find a user a and returns the first the user found
+
+        Argument:
+            user_id<int>: id of user
+        """
+        user = self.find_user_by(id=user_id)
+        for key, value in kwargs.items():
+            if key not in DATA:
+                raise ValueError
+            setattr(user, key, value)
+        self._session.commit()
+        return None
