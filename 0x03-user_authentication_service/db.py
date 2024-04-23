@@ -44,6 +44,8 @@ class DB:
 
         Returns the user object
         """
+        if not email or not hashed_password:
+            return
         new_user = User(email=email, hashed_password=hashed_password)
         session = self._session
         session.add(new_user)
