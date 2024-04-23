@@ -22,4 +22,4 @@ class User(Base):
 
     def __repr__(self):
         """Returns a representation of the user class"""
-        return "<User(id={}, email={})>".format(self.id, self.email)
+        return User
