@@ -50,4 +50,3 @@ class Auth:
             return False
         else:
             return checkpw(password.encode('utf-8'), user.hashed_password)
-

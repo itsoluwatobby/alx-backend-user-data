@@ -29,11 +29,6 @@ def users():
         return jsonify({"email": user.email, "message": "user created"})
 
 
-#@app.route('/users', methods=['POST'], strict_slashes=False)
-#def users():
-#    """User registration route"""
-
-
 if __name__ == "__main__":
     """Runs flask app"""
     app.run(host="0.0.0.0", port="5000")

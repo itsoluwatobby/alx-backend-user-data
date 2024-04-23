@@ -19,7 +19,3 @@ class User(Base):
     hashed_password = Column(String(250), nullable=False)
     session_id = Column(String(250))
     reset_token = Column(String(250))
-
-    def __repr__(self):
-        """Returns a representation of the user class"""
-        return User
