@@ -6,6 +6,8 @@ from bcrypt import gensalt, hashpw, checkpw
 from db import DB
 from user import User
 from sqlalchemy.orm.exc import NoResultFound
+from uuid import uuid4
+from typing import Union
 
 
 def _hash_password(password: str) -> str:
@@ -18,6 +20,14 @@ def _hash_password(password: str) -> str:
     Returns the hashed_password
     """
     return hashpw(password.encode('utf-8'), gensalt())
+
+
+def _generate_uuid() -> str:
+    """Generate a uuid using the uuid module
+
+    Returns the generated uuid
+    """
+    return str(uuid4())
 
 
 class Auth:
@@ -50,3 +60,65 @@ class Auth:
             return False
         else:
             return checkpw(password.encode('utf-8'), user.hashed_password)
+
+    def create_session(self, email: str) -> str:
+        """Create a user session
+
+        Argument:
+            email<str>: user email
+        Returns a sessionId
+        """
+        try:
+            sessionId = _generate_uuid()
+            user = self._db.find_user_by(email=email)
+            self._db.update_user(user.id, session_id=sessionId)
+            return sessionId
+        except NoResultFound as e:
+            return
+
+    def get_user_from_session_id(self, session_id: str) -> Union[User, None]:
+        """Retrieves a user by the session_id
+
+        Arguments:
+            session_id<str>: session_id to find a user
+
+        Returns the user if found or None
+        """
+        if session_id:
+            try:
+                user = self._db.find_user_by(session_id=session_id)
+                return user
+            except NoResultFound as e:
+                return None
+        return None
+
+    def destroy_session(self, user_id: int) -> None:
+        """Destroys a user session
+
+        Argument:
+            user_id<int>: userId
+        """
+        try:
+            self._db.update_user(user_id, session_id=None)
+            return
+        except NoResultFound as e:
+            return None
+
+    def get_reset_password_token(self, email: str) -> str:
+        """Retrieves the user reset token
+
+        Argument:
+            email<str>: user email
+
+        Returns the reset token
+        """
+        try:
+            user = self._db.find_user_by(email=email)
+            if not user:
+                raise ValueError
+        except ValueError as e:
+            return
+        else:
+            reset_token = _generate_uuid()
+            self._db.update_user(user_id, reset_token=reset_token)
+            return reset_token
