@@ -112,8 +112,9 @@ class Auth:
 
         Returns the reset token
         """
-        user = self._db.find_user_by(email=email)
-        if not user:
+        try:
+            user = self._db.find_user_by(email=email)
+        except NoResultFound as e:
             raise ValueError
         else:
             reset_token = _generate_uuid()
