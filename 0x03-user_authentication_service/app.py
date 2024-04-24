@@ -35,14 +35,13 @@ def login():
     """User login route"""
     email = request.form.get('email')
     password = request.form.get('password')
-
-    if not Auth.valid_login(email, password):
+    valid_login = Auth.valid_login(email, password)
+    if not email or not password or not valid_login:
         abort(401)
-    else:
-        session_id = Auth.create_session(email)
-        res = jsonify({"email": email, "message": "logged in"})
-        res.set_cookie('session_id', session_id)
-        return res
+    session_id = Auth.create_session(email)
+    res = jsonify({"email": email, "message": "logged in"})
+    res.set_cookie('session_id', session_id)
+    return res
 
 
 @app.route('/sessions', methods=['DELETE'], strict_slashes=False)
