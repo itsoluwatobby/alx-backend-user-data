@@ -10,7 +10,7 @@ from sqlalchemy.exc import InvalidRequestError
 from user import Base, User
 
 
-DATA = ['id', 'email', 'hashed_password', 'session_id', 'reset_token']
+ATTRIBUTES = ['id', 'email', 'hashed_password', 'session_id', 'reset_token']
 
 
 class DB:
@@ -20,7 +20,7 @@ class DB:
     def __init__(self) -> None:
         """Initialize a new DB instance
         """
-        self._engine = create_engine("sqlite:///a.db", echo=True)
+        self._engine = create_engine("sqlite:///a.db", echo=False)
         Base.metadata.drop_all(self._engine)
         Base.metadata.create_all(self._engine)
         self.__session = None
@@ -72,7 +72,7 @@ class DB:
         """
         user = self.find_user_by(id=user_id)
         for key, value in kwargs.items():
-            if key not in DATA:
+            if key not in ATTRIBUTES:
                 raise ValueError
             setattr(user, key, value)
         self._session.commit()
